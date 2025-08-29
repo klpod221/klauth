@@ -5,6 +5,13 @@ const expressLayouts = require('express-ejs-layouts');
 const config = require('./src/config');
 const logger = require('./src/utils/logger');
 
+// API Route
+const authRoutes = require('./src/api/routes/auth.routes');
+
+// Error Handler
+const { errorConverter, errorHandler } = require('./src/api/middlewares/error');
+const ApiError = require('./src/utils/ApiError');
+
 const app = express();
 
 // Middlewares
@@ -31,9 +38,21 @@ app.get('/', (req, res) => {
     res.send('Auth Service is running!');
 });
 
-// TODO: Add API and Dashboard routes later
+// API Routes
+app.use('/api/auth', authRoutes);
+
+// TODO: Add Dashboard routes later
 
 // --- ERROR HANDLING ---
-// TODO: Add error handling middlewares later
+// Send 404 error for any unknown api request
+app.get('/', (req, res) => {
+    res.send('Auth Service is running!');
+});
+
+// Convert error to ApiError, if needed
+app.use(errorConverter);
+
+// Handle errors
+app.use(errorHandler);
 
 module.exports = app;

@@ -14,3 +14,6 @@ logs/
 # IDE config
 .idea/
 .vscode/
+
+# Docker Volumes
+/docker/
