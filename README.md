@@ -22,7 +22,7 @@ The core of the system is a secure **Public/Private Key (RS256 JWT)** strategy, 
 -   **Protected Routes**: Middleware to easily protect any API endpoint.
 -   **Centralized Error Handling**: A consistent and clean way to handle application errors.
 -   **Dockerized Environment**: Uses Docker Compose for easy setup of dependencies like MongoDB.
--   *(Planned)* **Rate Limiting**: Protects APIs from abuse using Redis.
+-   **Rate Limiting**: Protects APIs from abuse using Redis.
 -   *(Planned)* **Background Job Queues**: Offloads tasks like sending emails to a Redis queue for better performance.
 -   *(Planned)* **Dynamic Configuration**: Admin dashboard to manage CORS, rate limits, and other settings per service.
 
@@ -123,16 +123,16 @@ This checklist tracks the progress of the project features.
 - [x] Logout Endpoint (Token Invalidation)
 - [x] Protected Route Middleware (`auth`)
 - [x] Centralized & Consistent Error Handling
+- [x] Redis Integration: Rate Limiting Middleware
+- [x] Implement Validation Layer for Incoming Requests (`express-validator`)
 
 ### To-Do
-- [ ] Redis Integration: Rate Limiting Middleware
 - [ ] Redis Integration: Queue System for Background Jobs (e.g., Mailer)
 - [ ] Dynamic CORS Configuration from Database
 - [ ] Admin Dashboard: Basic UI (Server-Side Rendered with EJS)
 - [ ] Admin Dashboard: APIs for managing services, CORS, and rate limits
 - [ ] Advanced Logging (to files and/or external services)
 - [ ] Setup Monitoring (e.g., with PM2 or other tools)
-- [ ] Implement Validation Layer for Incoming Requests (`express-validator`)
 - [ ] Write Unit and Integration Tests
 
 ---
