@@ -1,0 +1,16 @@
+# Dependencies
+/node_modules
+
+# Environment variables
+.env
+
+# Keys
+/keys/private.pem
+
+# Logs
+logs/
+*.log
+
+# IDE config
+.idea/
+.vscode/
