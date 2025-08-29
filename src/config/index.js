@@ -10,6 +10,7 @@ module.exports = {
   redis: {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD,
   },
   jwt: {
     privateKeyPath: process.env.PRIVATE_KEY_PATH,

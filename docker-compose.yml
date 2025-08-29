@@ -9,3 +9,12 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=klpod221
     volumes:
       - ./docker/mongo-data:/data/db
+
+  redis:
+    image: redis:alpine
+    container_name: redis_klauth
+    ports:
+      - "6380:6379"
+    command: redis-server --requirepass klpod221
+    volumes:
+      - ./docker/redis-data:/data
