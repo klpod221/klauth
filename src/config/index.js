@@ -18,4 +18,5 @@ module.exports = {
     accessExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
     refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   },
+  sessionSecret: process.env.SESSION_SECRET
 };
