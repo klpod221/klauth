@@ -14,4 +14,10 @@ router
   .post(adminValidation.createService, validate, adminController.createService)
   .get(adminController.getServices);
 
+router
+  .route('/services/:id')
+  .get(adminController.getServiceById)
+  .delete(adminController.deleteServiceById)
+  .put(adminValidation.updateService, validate, adminController.updateServiceById);
+
 module.exports = router;

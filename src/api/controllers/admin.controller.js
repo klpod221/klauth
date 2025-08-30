@@ -7,11 +7,31 @@ const createService = catchAsync(async (req, res) => {
 });
 
 const getServices = catchAsync(async (req, res) => {
-  const services = await adminService.getServices();
-  res.send(services);
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const result = await adminService.getServices(page, limit);
+  res.send(result);
+});
+
+const getServiceById = catchAsync(async (req, res) => {
+  const service = await adminService.getServiceById(req.params.id);
+  res.send(service);
+});
+
+const deleteServiceById = catchAsync(async (req, res) => {
+  await adminService.deleteServiceById(req.params.id);
+  res.status(204).send();
+});
+
+const updateServiceById = catchAsync(async (req, res) => {
+  const service = await adminService.updateServiceById(req.params.id, req.body);
+  res.send(service);
 });
 
 module.exports = {
   createService,
   getServices,
+  getServiceById,
+  deleteServiceById,
+  updateServiceById,
 };

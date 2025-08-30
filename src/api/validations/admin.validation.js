@@ -8,6 +8,15 @@ const createService = [
   body('rateLimit.max').isInt({ min: 1 }).withMessage('Rate limit max requests must be at least 1'),
 ];
 
+const updateService = [
+  body('serviceName').optional().notEmpty().withMessage('Service name is required'),
+  body('allowedOrigins').optional().isArray().withMessage('Allowed origins must be an array'),
+  body('allowedOrigins.*').optional().isURL({ require_tld: false }).withMessage('Each origin must be a valid URL'),
+  body('rateLimit.windowMs').optional().isInt({ min: 1000 }).withMessage('Rate limit window must be at least 1000ms'),
+  body('rateLimit.max').optional().isInt({ min: 1 }).withMessage('Rate limit max requests must be at least 1'),
+];
+
 module.exports = {
   createService,
+  updateService,
 };

@@ -17,11 +17,50 @@ const createService = async (serviceBody) => {
  * Get all service configurations.
  * @returns {Promise<Array<ServiceConfig>>}
  */
-const getServices = async () => {
-  return ServiceConfig.find({});
+const getServices = async (page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+  const services = await ServiceConfig.find({}).skip(skip).limit(limit).sort({ createdAt: -1 });
+  const totalItems = await ServiceConfig.countDocuments();
+  const totalPages = Math.ceil(totalItems / limit);
+  return { services, totalPages, currentPage: page, totalItems };
+};
+
+/**
+ * Get service by id
+ * @param {string} serviceId - The ID of the service.
+ * @returns {Promise<ServiceConfig>}
+ */
+const getServiceById = async (serviceId) => {
+  const service = await ServiceConfig.findById(serviceId);
+  if (!service) {
+    throw new ApiError(404, 'Service not found');
+  }
+  return service;
+};
+
+/**
+ * Delete a service by its ID.
+ * @param {string} serviceId - The ID of the service.
+ * @returns {Promise<void>}
+ */
+const deleteServiceById = async (serviceId) => {
+  const service = await ServiceConfig.findByIdAndDelete(serviceId);
+  if (!service) {
+    throw new ApiError(404, 'Service not found');
+  }
+};
+
+const updateServiceById = async (serviceId, updateBody) => {
+  const service = await getServiceById(serviceId);
+  Object.assign(service, updateBody);
+  await service.save();
+  return service;
 };
 
 module.exports = {
   createService,
   getServices,
+  getServiceById,
+  deleteServiceById,
+  updateServiceById,
 };
