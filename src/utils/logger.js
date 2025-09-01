@@ -1,4 +1,3 @@
-// src/utils/logger.js
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const { MongoDB } = require('winston-mongodb');
@@ -40,6 +39,17 @@ if (config.env !== 'production') {
       ),
     })
   );
+} else {
+  apiTransports.push(
+    new MongoDB({
+      level: 'info',
+      db: config.mongodbUri,
+      collection: 'logs_api',
+      format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+      capped: true,
+      cappedSize: 10000000,
+    })
+  );
 }
 
 const apiLogger = winston.createLogger({
@@ -68,13 +78,21 @@ const workerTransports = [
   }),
 ];
 
-if (config.env === 'production') {
+if (config.env !== 'production') {
+  workerTransports.push(
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      ),
+    })
+  );
+} else {
   workerTransports.push(
     new MongoDB({
       level: 'info',
       db: config.mongodbUri,
-      options: { useUnifiedTopology: true },
-      collection: 'logs_worker', // Different collection name for worker
+      collection: 'logs_worker',
       format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
       capped: true,
       cappedSize: 10000000,
