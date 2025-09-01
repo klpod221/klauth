@@ -1,12 +1,12 @@
 const { Worker } = require('bullmq');
 const config = require('./src/config');
-const logger = require('./src/utils/logger');
+const { workerLogger } = require('./src/utils/logger');
 const mailService = require('./src/api/services/mail.service');
 
-logger.info('Worker process started.');
+workerLogger.info('Worker process started.');
 
 const worker = new Worker('mail-queue', async (job) => {
-  logger.info(`Processing job '${job.name}' with data:`, job.data);
+  workerLogger.info(`Processing job '${job.name}' with data:`, job.data);
   switch (job.name) {
     case 'send-verification-email':
       await mailService.sendVerificationEmail(job.data.to, job.data.token);
@@ -26,9 +26,9 @@ const worker = new Worker('mail-queue', async (job) => {
 });
 
 worker.on('completed', (job) => {
-  logger.info(`Job ${job.id} has completed!`);
+  workerLogger.info(`Job ${job.id} has completed!`);
 });
 
 worker.on('failed', (job, err) => {
-  logger.error(`Job ${job.id} has failed with ${err.message}`);
+  workerLogger.error(`Job ${job.id} has failed with ${err.message}`);
 });

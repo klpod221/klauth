@@ -2,7 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 
 const config = require('./src/config');
-const logger = require('./src/utils/logger');
+const { apiLogger } = require('./src/utils/logger');
 
 const authRoutes = require('./src/api/routes/auth.routes');
 const adminRoutes = require('./src/api/routes/admin.routes');
@@ -23,7 +23,7 @@ app.use(dynamicCors);
 
 // HTTP request logger middleware
 if (config.env !== 'test') {
-    app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
+    app.use(morgan('combined', { stream: { write: message => apiLogger.info(message.trim()) } }));
 }
 
 // Public Assets

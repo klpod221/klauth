@@ -1,5 +1,5 @@
 const config = require('../../config');
-const logger = require('../../utils/logger');
+const { apiLogger } = require('../../utils/logger');
 const ApiError = require('../../utils/ApiError');
 
 const errorConverter = (err, req, res, next) => {
@@ -28,7 +28,7 @@ const errorHandler = (err, req, res, next) => {
   };
 
   if (config.env === 'development') {
-    logger.error(err);
+    apiLogger.error(err);
   }
 
   res.status(statusCode).send(response);

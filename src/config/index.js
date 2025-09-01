@@ -7,7 +7,7 @@ module.exports = {
   appUrl: process.env.APP_URL,
   env: process.env.NODE_ENV,
   port: process.env.PORT,
-  mongodbUri: process.env.MONGODB_URI,
+  mongodbUri: process.env.MONGODB_URI || `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DATABASE}?authSource=admin`,
   redis: {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,

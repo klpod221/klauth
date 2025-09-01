@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const config = require('../../config');
-const logger = require('../../utils/logger');
+const { apiLogger } = require('../../utils/logger');
 
 const transporter = nodemailer.createTransport({
   host: config.mail.host,
@@ -17,13 +17,13 @@ const transporter = nodemailer.createTransport({
  * @param {string} token - The verification token.
  */
 const sendVerificationEmail = async (to, token) => {
-  const verificationLink = `http://${config.appUrl}/verify-email?token=${token}`;
+  const verificationLink = `${config.appUrl}/verify-email?token=${token}`;
   const subject = 'Welcome to KLAuth! Please Verify Your Email';
   const text = `Welcome! Please verify your email by clicking on this link: ${verificationLink}`;
   const html = `<b>Welcome!</b><p>Please verify your email by clicking on this link: <a href="${verificationLink}">${verificationLink}</a></p>`;
 
   await transporter.sendMail({ from: config.mail.from, to, subject, text, html });
-  logger.info(`Verification email sent to ${to}`);
+  apiLogger.info(`Verification email sent to ${to}`);
 };
 
 /**
@@ -32,13 +32,13 @@ const sendVerificationEmail = async (to, token) => {
  * @param {string} token - The password reset token.
  */
 const sendResetPasswordEmail = async (to, token) => {
-  const resetLink = `http://${config.appUrl}/reset-password?token=${token}`;
+  const resetLink = `${config.appUrl}/reset-password?token=${token}`;
   const subject = 'KLAuth - Password Reset Request';
   const text = `You requested a password reset. Click this link to reset your password: ${resetLink}`;
   const html = `<b>Password Reset</b><p>You requested a password reset. Click this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
 
   await transporter.sendMail({ from: config.mail.from, to, subject, text, html });
-  logger.info(`Password reset email sent to ${to}`);
+  apiLogger.info(`Password reset email sent to ${to}`);
 };
 
 module.exports = {

@@ -1,3 +1,4 @@
+// src/utils/logger.js
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const { MongoDB } = require('winston-mongodb');
@@ -8,12 +9,13 @@ const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
   winston.format.splat(),
-  winston.format.json() // Log in JSON format for easier parsing
+  winston.format.json()
 );
 
-const transports = [
+// --- API Logger ---
+const apiTransports = [
   new DailyRotateFile({
-    filename: path.join(__dirname, '../../logs/klauth-error-%DATE%.log'),
+    filename: path.join(__dirname, '../../logs/klauth-api-error-%DATE%.log'),
     level: 'error',
     datePattern: 'YYYY-MM-DD',
     zippedArchive: true,
@@ -21,7 +23,7 @@ const transports = [
     maxFiles: '14d',
   }),
   new DailyRotateFile({
-    filename: path.join(__dirname, '../../logs/klauth-combined-%DATE%.log'),
+    filename: path.join(__dirname, '../../logs/klauth-api-combined-%DATE%.log'),
     datePattern: 'YYYY-MM-DD',
     zippedArchive: true,
     maxSize: '20m',
@@ -29,20 +31,8 @@ const transports = [
   }),
 ];
 
-if (config.env === 'production') {
-  transports.push(
-    new MongoDB({
-      level: 'info',
-      db: config.mongodbUri,
-      options: { useUnifiedTopology: true },
-      collection: 'logs',
-      format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-      capped: true, // Use a capped collection for performance
-      cappedSize: 10000000, // 10MB
-    })
-  );
-} else {
-  transports.push(
+if (config.env !== 'production') {
+  apiTransports.push(
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
@@ -52,11 +42,54 @@ if (config.env === 'production') {
   );
 }
 
-const logger = winston.createLogger({
+const apiLogger = winston.createLogger({
   level: config.env === 'production' ? 'info' : 'debug',
   format: logFormat,
-  transports,
-  exitOnError: false, // Do not exit on handled exceptions
+  transports: apiTransports,
+  exitOnError: false,
 });
 
-module.exports = logger;
+// --- Worker Logger ---
+const workerTransports = [
+  new DailyRotateFile({
+    filename: path.join(__dirname, '../../logs/klauth-worker-error-%DATE%.log'),
+    level: 'error',
+    datePattern: 'YYYY-MM-DD',
+    zippedArchive: true,
+    maxSize: '20m',
+    maxFiles: '14d',
+  }),
+  new DailyRotateFile({
+    filename: path.join(__dirname, '../../logs/klauth-worker-combined-%DATE%.log'),
+    datePattern: 'YYYY-MM-DD',
+    zippedArchive: true,
+    maxSize: '20m',
+    maxFiles: '14d',
+  }),
+];
+
+if (config.env === 'production') {
+  workerTransports.push(
+    new MongoDB({
+      level: 'info',
+      db: config.mongodbUri,
+      options: { useUnifiedTopology: true },
+      collection: 'logs_worker', // Different collection name for worker
+      format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+      capped: true,
+      cappedSize: 10000000,
+    })
+  );
+}
+
+const workerLogger = winston.createLogger({
+  level: config.env === 'production' ? 'info' : 'debug',
+  format: logFormat,
+  transports: workerTransports,
+  exitOnError: false,
+});
+
+module.exports = {
+  apiLogger,
+  workerLogger,
+};

@@ -1,30 +1,42 @@
 <div align="center">
     <h1>KLAuth: Centralized Authentication Service</h1>
-    <p>A robust, scalable, and secure authentication/authorization service built with Node.js, Express, MongoDB, and Redis.</p>
-    <img src="https://img.shields.io/github/last-commit/klpod221/klauth?style=for-the-badge&color=ffb4a2&labelColor=201a19" alt="Last Commit">
-    <img src="https://img.shields.io/github/stars/klpod221/klauth?style=for-the-badge&color=e6c419&labelColor=1d1b16" alt="GitHub Stars">
-    <img src="https://img.shields.io/github/repo-size/klpod221/klauth?style=for-the-badge&color=a8c7ff&labelColor=1a1b1f" alt="Repo Size">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&color=b9fbc0&labelColor=1a1f1a" alt="License">
+    <p>A robust, scalable, and production-ready Authentication & Authorization service built with the modern Node.js ecosystem.</p>
+    <img src="https://img.shields.io/github/last-commit/klpod221/klauth?style=for-the-badge&color=74c7ec&labelColor=111827" alt="Last Commit">
+    <img src="https://img.shields.io/github/stars/klpod221/klauth?style=for-the-badge&color=facc15&labelColor=111827" alt="GitHub Stars">
+    <img src="https://img.shields.io/github/repo-size/klpod221/klauth?style=for-the-badge&color=a78bfa&labelColor=111827" alt="Repo Size">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&color=34d399&labelColor=111827" alt="License">
 </div>
 
 ## 📝 Description
 
-This project is a centralized **Authentication and Authorization service** designed to be the single source of truth for user identity across multiple applications or microservices. It handles user registration, login, session management, and provides secure tokens for accessing protected resources.
+**KLAuth** is a centralized **Authentication and Authorization service** designed to be the single source of truth for user identity across multiple applications or microservices. It handles the complete user lifecycle, including registration, login, session management, email verification, and password resets, providing secure tokens for accessing protected resources in other services.
 
-The core of the system is a secure **Public/Private Key (RS256 JWT)** strategy, which allows other services to verify user identity independently without needing access to a shared secret.
+The core of the system is a secure **Public/Private Key (RS256 JWT)** strategy. This allows other "Resource Services" to verify user identity independently and statelessly, simply by using the public key provided by KLAuth, without needing access to a shared secret or the central database.
 
 ## ✨ Key Features
 
--   **JWT Authentication**: Secure stateless authentication using JSON Web Tokens signed with RS256 algorithm.
--   **Access & Refresh Tokens**: Implements a robust token strategy with short-lived access tokens and long-lived refresh tokens.
--   **Refresh Token Rotation**: Enhances security by invalidating and re-issuing refresh tokens on each use.
--   **Secure Password Hashing**: Uses `bcrypt` to securely hash and store user passwords.
--   **Protected Routes**: Middleware to easily protect any API endpoint.
--   **Centralized Error Handling**: A consistent and clean way to handle application errors.
--   **Dockerized Environment**: Uses Docker Compose for easy setup of dependencies like MongoDB.
--   **Rate Limiting**: Protects APIs from abuse using Redis.
--   *(Planned)* **Background Job Queues**: Offloads tasks like sending emails to a Redis queue for better performance.
--   *(Planned)* **Dynamic Configuration**: Admin dashboard to manage CORS, rate limits, and other settings per service.
+-   **Asymmetric JWT Authentication**: Secure stateless authentication using JSON Web Tokens signed with the RS256 algorithm.
+-   **Full Token Lifecycle**: Implements a robust token strategy with short-lived Access Tokens and long-lived, revokable Refresh Tokens.
+-   **Complete User Flow**:
+    -   User Registration with **Email Verification**.
+    -   Secure Login & Logout.
+    -   **Forgot Password** and Reset Password functionality.
+    -   Ability to **resend verification emails** for unverified accounts.
+-   **High-Performance Architecture**:
+    -   **Background Job Queues**: Offloads time-consuming tasks like sending emails to a Redis-backed queue (`BullMQ`), ensuring fast API responses.
+    -   **Production-Ready Process Management**: Configured with `PM2` for clustering (utilizing all CPU cores), automatic restarts, and process monitoring.
+-   **Robust Security & Validation**:
+    -   **Secure Password Hashing**: Uses `bcrypt` to securely hash and store user passwords.
+    -   **Input Validation**: Protects all endpoints with `express-validator` to ensure data integrity.
+    -   **Rate Limiting**: Shields the API from brute-force attacks and abuse using a Redis-backed rate limiter.
+    -   **Centralized Error Handling**: A consistent and clean system for handling application errors.
+-   **Administrator APIs**: Protected endpoints for managing the system, including:
+    -   CRUD operations for client **Services**.
+    -   API to query system logs directly from the database.
+-   **Advanced Logging**:
+    -   Configured with `Winston` for structured, level-based logging.
+    -   Logs are written to rotating files and persisted to MongoDB in production for easy querying.
+-   **Dockerized Environment**: Uses Docker Compose for easy, one-command setup of dependencies like MongoDB and Redis.
 
 ## 🛠️ Tech Stack
 
@@ -35,6 +47,7 @@ The core of the system is a secure **Public/Private Key (RS256 JWT)** strategy, 
     <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
     <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT">
     <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+    <img src="https://img.shields.io/badge/PM2-2B037A?style=for-the-badge&logo=pm2&logoColor=white" alt="PM2">
 </div>
 
 ## 🚀 Getting Started
@@ -45,6 +58,7 @@ Follow these instructions to get the project up and running on your local machin
 
 -   [Node.js](https://nodejs.org/) (v18.x or later)
 -   [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
+-   [PM2](https://pm2.keymetrics.io/) installed globally: `npm install -g pm2`
 -   [OpenSSL](https://www.openssl.org/) (usually pre-installed on Linux/macOS)
 
 ### Installation
@@ -65,10 +79,10 @@ Follow these instructions to get the project up and running on your local machin
     ```bash
     cp .env.example .env
     ```
-    *Ensure the values in `.env` are correct, especially for the database connection.*
+    _Ensure the values in `.env` are correct, especially for the database, Redis, and mail server._
 
 4.  **Generate Public/Private Keys:**
-    Run these commands in your terminal to generate the necessary keys for JWT signing.
+    These keys are NOT tracked by Git and must be generated locally.
     ```bash
     # Create the keys directory if it doesn't exist
     mkdir -p keys
@@ -80,60 +94,53 @@ Follow these instructions to get the project up and running on your local machin
     openssl rsa -in keys/private.pem -pubout -out keys/public.pem
     ```
 
-5.  **Start the database with Docker:**
-    This command will start a MongoDB container in the background.
+5.  **Start Background Services:**
+    This command will start MongoDB and Redis containers in the background.
     ```bash
     docker-compose up -d
     ```
 
-6.  **Run the application:**
+### Running the Application
+
+-   **For Development:**
+    You need to run the API server and the Queue Worker in separate terminals.
     ```bash
-    # For development with auto-reloading
+    # Terminal 1: Start the API Server with auto-reloading
     npm run dev
 
-    # For production
-    npm start
+    # Terminal 2: Start the Queue Worker
+    npm run worker
     ```
-    The server should now be running on `http://localhost:3000`.
 
-## 📡 API Endpoints
+-   **For Production:**
+    PM2 will manage both the API cluster and the Worker.
+    ```bash
+    # Start all applications defined in ecosystem.config.js
+    npm run start:prod
 
-Here is a list of the available API endpoints.
+    # Monitor logs and performance
+    npm run logs
+    npm run monit
 
-| Method | Endpoint              | Protection | Description                                       |
-| :----- | :-------------------- | :--------- | :------------------------------------------------ |
-| `POST` | `/api/auth/register`  | Public     | Register a new user.                              |
-| `POST` | `/api/auth/login`     | Public     | Log in a user and receive auth tokens.            |
-| `POST` | `/api/auth/logout`    | Public     | Log out a user by invalidating the refresh token. |
-| `POST` | `/api/auth/refresh-token` | Public | Get a new access token using a refresh token.     |
-| `GET`  | `/api/auth/profile`   | **Private**  | Get the profile of the currently logged-in user.  |
+    # Stop all applications
+    npm run stop:prod
+    ```
 
-## ✅ Project Checklist
+## 📡 Core API Endpoints
 
-This checklist tracks the progress of the project features.
+A summary of the main user-facing authentication endpoints.
 
-### Completed
-- [x] Project Setup with Express.js
-- [x] Dockerized MongoDB Environment
-- [x] Core User Model and Password Hashing
-- [x] JWT (RS256) Implementation with Public/Private Keys
-- [x] Registration Endpoint
-- [x] Login Endpoint with Access/Refresh Token Generation
-- [x] Refresh Token Endpoint with Token Rotation
-- [x] Logout Endpoint (Token Invalidation)
-- [x] Protected Route Middleware (`auth`)
-- [x] Centralized & Consistent Error Handling
-- [x] Redis Integration: Rate Limiting Middleware
-- [x] Implement Validation Layer for Incoming Requests (`express-validator`)
-
-### To-Do
-- [ ] Redis Integration: Queue System for Background Jobs (e.g., Mailer)
-- [ ] Dynamic CORS Configuration from Database
-- [ ] Admin Dashboard: Basic UI (Server-Side Rendered with EJS)
-- [ ] Admin Dashboard: APIs for managing services, CORS, and rate limits
-- [ ] Advanced Logging (to files and/or external services)
-- [ ] Setup Monitoring (e.g., with PM2 or other tools)
-- [ ] Write Unit and Integration Tests
+| Method | Endpoint                    | Protection | Description                                           |
+| :----- | :-------------------------- | :--------- | :---------------------------------------------------- |
+| `POST` | `/api/auth/register`        | Public     | Register a new user and trigger verification email.   |
+| `POST` | `/api/auth/login`           | Public     | Log in and receive Access/Refresh tokens.             |
+| `POST` | `/api/auth/logout`          | Public     | Invalidate a Refresh Token.                           |
+| `POST` | `/api/auth/refresh-token`   | Public     | Get a new Access Token using a Refresh Token.         |
+| `GET`  | `/api/auth/profile`         | **Private**  | Get the profile of the currently logged-in user.      |
+| `POST` | `/api/auth/verify-email`    | Public     | Verify a user's email using a token from the email.   |
+| `POST` | `/api/auth/forgot-password` | Public     | Trigger a password reset email.                       |
+| `POST` | `/api/auth/reset-password`  | Public     | Set a new password using a token from the email.      |
+| `POST` | `/api/auth/resend-verification` | Public | Request a new verification email.                 |
 
 ---
-_This README was generated with assistance from an AI model._
+_This README was crafted with assistance from an AI model._
