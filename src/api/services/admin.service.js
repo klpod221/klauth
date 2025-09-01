@@ -1,5 +1,6 @@
 const ServiceConfig = require('../models/serviceConfig.model');
 const ApiError = require('../../utils/ApiError');
+const mongoose = require('mongoose');
 
 /**
  * Create a new service configuration.
@@ -61,6 +62,43 @@ const findServiceByOrigin = async (origin) => {
   return ServiceConfig.findOne({ origin });
 };
 
+/**
+ * Query for logs with pagination.
+ * @param {Object} queryOptions - Query options
+ * @param {string} [queryOptions.level] - Filter by log level
+ * @param {number} [queryOptions.page] - Current page
+ * @param {number} [queryOptions.limit] - Results per page
+ * @returns {Promise<Object>}
+ */
+const getLogs = async (queryOptions) => {
+  const { level } = queryOptions;
+
+  const page = parseInt(queryOptions.page, 10) || 1;
+  const limit = parseInt(queryOptions.limit, 10) || 20;
+
+  const filter = {};
+  if (level) {
+    filter.level = level;
+  }
+
+  const skip = (page - 1) * limit;
+
+  // Access the 'logs' collection directly
+  const logsCollection = mongoose.connection.collection('logs');
+
+  const logs = await logsCollection
+    .find(filter)
+    .sort({ timestamp: -1 }) // Show latest logs first
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+
+  const totalItems = await logsCollection.countDocuments(filter);
+  const totalPages = Math.ceil(totalItems / limit);
+
+  return { logs, totalPages, currentPage: page, totalItems };
+};
+
 module.exports = {
   createService,
   getServices,
@@ -68,4 +106,5 @@ module.exports = {
   findServiceByOrigin,
   deleteServiceById,
   updateServiceById,
+  getLogs
 };

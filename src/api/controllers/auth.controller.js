@@ -22,7 +22,7 @@ const login = catchAsync(async (req, res) => {
   const user = await authService.login(email, password);
 
   if (config.mail.enabled && !user.isEmailVerified) {
-    throw new ApiError(401, 'Please verify your email before logging in');
+    return res.status(403).send({ message: 'Please verify your email before logging in' });
   }
 
   const tokens = await tokenService.generateAuthTokens(user);

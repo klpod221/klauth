@@ -1,4 +1,5 @@
 const { body } = require('express-validator');
+const { query } = require('express-validator');
 
 const createService = [
   body('serviceName').notEmpty().withMessage('Service name is required'),
@@ -16,7 +17,14 @@ const updateService = [
   body('rateLimit.max').optional().isInt({ min: 1 }).withMessage('Rate limit max requests must be at least 1'),
 ];
 
+const getLogs = [
+  query('level').optional().isString().isIn(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']),
+  query('page').optional().isInt({ min: 1 }).toInt(),
+  query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
+];
+
 module.exports = {
   createService,
   updateService,
+  getLogs,
 };

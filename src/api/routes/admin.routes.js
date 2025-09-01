@@ -20,4 +20,6 @@ router
   .delete(adminController.deleteServiceById)
   .put(adminValidation.updateService, validate, adminController.updateServiceById);
 
+router.get('/logs', adminValidation.getLogs, validate, adminController.getLogs);
+
 module.exports = router;

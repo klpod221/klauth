@@ -17,3 +17,7 @@ logs/
 
 # Docker Volumes
 /docker/
+
+# PM2 logs and data
+.pm2/
+pm2-*.log

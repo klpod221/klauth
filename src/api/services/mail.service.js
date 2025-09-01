@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
  * @param {string} token - The verification token.
  */
 const sendVerificationEmail = async (to, token) => {
-  const verificationLink = `http://yourapp.com/verify-email?token=${token}`;
+  const verificationLink = `http://${config.appUrl}/verify-email?token=${token}`;
   const subject = 'Welcome to KLAuth! Please Verify Your Email';
   const text = `Welcome! Please verify your email by clicking on this link: ${verificationLink}`;
   const html = `<b>Welcome!</b><p>Please verify your email by clicking on this link: <a href="${verificationLink}">${verificationLink}</a></p>`;
@@ -32,7 +32,7 @@ const sendVerificationEmail = async (to, token) => {
  * @param {string} token - The password reset token.
  */
 const sendResetPasswordEmail = async (to, token) => {
-  const resetLink = `http://yourapp.com/reset-password?token=${token}`;
+  const resetLink = `http://${config.appUrl}/reset-password?token=${token}`;
   const subject = 'KLAuth - Password Reset Request';
   const text = `You requested a password reset. Click this link to reset your password: ${resetLink}`;
   const html = `<b>Password Reset</b><p>You requested a password reset. Click this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;

@@ -28,10 +28,16 @@ const updateServiceById = catchAsync(async (req, res) => {
   res.send(service);
 });
 
+const getLogs = catchAsync(async (req, res) => {
+  const result = await adminService.getLogs(req.query);
+  res.send(result);
+});
+
 module.exports = {
   createService,
   getServices,
   getServiceById,
   deleteServiceById,
   updateServiceById,
+  getLogs
 };
