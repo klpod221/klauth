@@ -103,6 +103,31 @@ const resetPassword = async (token, newPassword) => {
   await user.save();
 };
 
+/**
+ * Resends a verification email if the user exists and is not yet verified.
+ * @param {string} email - The user's email.
+ * @returns {Promise<{user: User, token: string}|null>} An object with user and token if successful, otherwise null.
+ */
+const resendVerificationEmail = async (email) => {
+  const user = await User.findOne({ email });
+
+  if (!user || user.isEmailVerified) {
+    return null;
+  }
+
+  // If verification token exists and is not expired return error
+  if (user.emailVerificationToken && user.emailVerificationExpires > Date.now()) {
+    const waitTime = Math.ceil((user.emailVerificationExpires - Date.now()) / (60 * 1000));
+    throw new ApiError(400, `Verification email already sent, please wait ${waitTime} minutes before requesting a new one`);
+  }
+
+  // Generate a new verification token (this overwrites the old one)
+  const verificationToken = user.generateToken('email');
+  await user.save();
+
+  return { user, token: verificationToken };
+};
+
 module.exports = {
   createUser,
   login,
@@ -110,5 +135,6 @@ module.exports = {
   forgotPassword,
   generateVerifyEmailToken,
   verifyEmail,
-  resetPassword
+  resetPassword,
+  resendVerificationEmail,
 };

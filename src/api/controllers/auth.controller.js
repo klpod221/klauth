@@ -76,6 +76,20 @@ const resetPassword = catchAsync(async (req, res) => {
   res.status(200).send({ message: 'Password has been reset successfully.' });
 });
 
+/**
+ * Handles the request to resend a verification email.
+ */
+const resendVerificationEmail = catchAsync(async (req, res) => {
+  const result = await authService.resendVerificationEmail(req.body.email);
+
+  if (result && config.mail.enabled) {
+    await addMailJob('send-verification-email', { to: result.user.email, token: result.token });
+  }
+
+  // Always send a generic success message
+  res.status(200).send({ message: 'If an account with that email exists and is not verified, a new verification link has been sent.' });
+});
+
 module.exports = {
   register,
   login,
@@ -84,5 +98,6 @@ module.exports = {
   logout,
   forgotPassword,
   verifyEmail,
-  resetPassword
+  resetPassword,
+  resendVerificationEmail
 };
