@@ -57,10 +57,15 @@ const updateServiceById = async (serviceId, updateBody) => {
   return service;
 };
 
+const findServiceByOrigin = async (origin) => {
+  return ServiceConfig.findOne({ origin });
+};
+
 module.exports = {
   createService,
   getServices,
   getServiceById,
+  findServiceByOrigin,
   deleteServiceById,
   updateServiceById,
 };

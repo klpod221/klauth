@@ -17,4 +17,10 @@ router.post('/refresh-token', authValidation.refreshToken, validate, authControl
 
 router.get('/profile', auth, authController.getProfile);
 
+router.post('/forgot-password', authValidation.forgotPassword, validate, authController.forgotPassword);
+
+router.post('/verify-email', authValidation.verifyEmail, validate, authController.verifyEmail);
+
+router.post('/reset-password', authValidation.resetPassword, validate, authController.resetPassword);
+
 module.exports = router;

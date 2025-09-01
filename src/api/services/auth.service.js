@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const RefreshToken = require('../models/refreshToken.model');
 const ApiError = require('../../utils/ApiError');
+const config = require('../../config');
 
 /**
  * Create a user.
@@ -12,6 +13,17 @@ const createUser = async (userBody) => {
     throw new ApiError(400, 'Email already taken');
   }
   return User.create(userBody);
+};
+
+/**
+ * Generate email verification token for a user.
+ * @param {User} user - The user instance.
+ * @returns {Promise<string>} The verification token.
+ */
+const generateVerifyEmailToken = async (user) => {
+  const token = user.generateToken('email');
+  await user.save(); // Save the user document with the new token fields
+  return token;
 };
 
 /**
@@ -41,8 +53,62 @@ const logout = async (refreshToken) => {
   await refreshTokenDoc.deleteOne();
 };
 
+/**
+ * @param {string} email - The email address of the user.
+ * @returns {Promise<string>} - The password reset token.
+ */
+const forgotPassword = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    return null;
+  }
+  const resetToken = user.generateToken('password');
+  await user.save();
+  return resetToken;
+};
+
+const verifyEmail = async (token) => {
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.findOne({
+    emailVerificationToken: hashedToken,
+    emailVerificationExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, 'Token is invalid or has expired');
+  }
+
+  user.isEmailVerified = true;
+  user.emailVerificationToken = undefined;
+  user.emailVerificationExpires = undefined;
+  await user.save();
+};
+
+const resetPassword = async (token, newPassword) => {
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, 'Token is invalid or has expired');
+  }
+
+  user.password = newPassword; // The pre-save hook will hash it
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+};
+
 module.exports = {
   createUser,
   login,
   logout,
+  forgotPassword,
+  generateVerifyEmailToken,
+  verifyEmail,
+  resetPassword
 };

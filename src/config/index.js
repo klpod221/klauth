@@ -18,5 +18,13 @@ module.exports = {
     accessExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
     refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   },
-  sessionSecret: process.env.SESSION_SECRET
+  sessionSecret: process.env.SESSION_SECRET,
+  mail: {
+    enabled: process.env.MAIL_ENABLED === 'true',
+    host: process.env.MAIL_HOST,
+    port: parseInt(process.env.MAIL_PORT, 10),
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+    from: process.env.MAIL_FROM,
+  },
 };

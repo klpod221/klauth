@@ -23,7 +23,7 @@ const serviceConfigSchema = new mongoose.Schema(
         required: true,
         default: 100,
       },
-    },
+    }
   },
   {
     timestamps: true,

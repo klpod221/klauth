@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const morgan = require('morgan');
 
 const config = require('./src/config');
@@ -13,12 +12,14 @@ const { apiLimiter } = require('./src/api/middlewares/rateLimiter');
 const { errorConverter, errorHandler } = require('./src/api/middlewares/error');
 const ApiError = require('./src/utils/ApiError');
 
+const dynamicCors = require('./src/api/middlewares/dynamicCors');
+
 const app = express();
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(dynamicCors);
 
 // HTTP request logger middleware
 if (config.env !== 'test') {
